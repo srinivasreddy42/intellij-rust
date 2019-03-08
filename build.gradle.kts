@@ -327,6 +327,13 @@ project(":copyright") {
     }
 }
 
+project(":duplicates") {
+    dependencies {
+        compile(project(":"))
+        testCompile(project(":", "testOutput"))
+    }
+}
+
 project(":intellij-toml") {
     version = "0.2.0.${prop("buildNumber")}$channelSuffix"
 
