@@ -225,6 +225,7 @@ val WASM_TARGET_FEATURE = CompilerFeature("wasm_target_feature", ACTIVE, "1.30.0
 val ADX_TARGET_FEATURE = CompilerFeature("adx_target_feature", ACTIVE, "1.32.0")
 val CMPXCHG16B_TARGET_FEATURE = CompilerFeature("cmpxchg16b_target_feature", ACTIVE, "1.32.0")
 val MOVBE_TARGET_FEATURE = CompilerFeature("movbe_target_feature", ACTIVE, "1.34.0")
+val RTM_TARGET_FEATURE = CompilerFeature("rtm_target_feature", ACTIVE, "1.35.0")
 // Allows macro invocations on modules expressions and statements and
 // procedural macros to expand to non-items.
 val PROC_MACRO_HYGIENE = CompilerFeature("proc_macro_hygiene", ACTIVE, "1.30.0")
@@ -253,9 +254,7 @@ val CUSTOM_TEST_FRAMEWORKS = CompilerFeature("custom_test_frameworks", ACTIVE, "
 // non-builtin attributes in inner attribute position
 val CUSTOM_INNER_ATTRIBUTES = CompilerFeature("custom_inner_attributes", ACTIVE, "1.30.0")
 // Allow mixing of bind-by-move in patterns and references to
-// those identifiers in guards, *if* we are using MIR-borrowck
-// (aka NLL). Essentially this means you need to be using the
-// 2018 edition or later.
+// those identifiers in guards.
 val BIND_BY_MOVE_PATTERN_GUARDS = CompilerFeature("bind_by_move_pattern_guards", ACTIVE, "1.30.0")
 // Allows `impl Trait` in bindings (`let`, `const`, `static`).
 val IMPL_TRAIT_IN_BINDINGS = CompilerFeature("impl_trait_in_bindings", ACTIVE, "1.30.0")
