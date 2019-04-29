@@ -6,7 +6,10 @@
 package org.rust.lang.core.psi.ext
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.*
+import com.intellij.psi.LiteralTextEscaper
+import com.intellij.psi.PsiLanguageInjectionHost
+import com.intellij.psi.PsiReference
+import com.intellij.psi.PsiReferenceService
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.stubs.IStubElementType
 import org.intellij.lang.regexp.DefaultRegExpPropertiesProvider
@@ -22,26 +25,53 @@ import org.rust.lang.core.psi.impl.RsExprImpl
 import org.rust.lang.core.psi.kind
 import org.rust.lang.core.stubs.RsLitExprStub
 import org.rust.lang.core.stubs.RsPlaceholderStub
-import org.rust.lang.core.stubs.RsStubLiteralType
+import org.rust.lang.core.stubs.RsStubLiteralKind
 import org.rust.lang.core.types.ty.TyFloat
 import org.rust.lang.core.types.ty.TyInteger
 
-val RsLitExpr.stubType: RsStubLiteralType? get() {
+val RsLitExpr.stubKind: RsStubLiteralKind? get() {
     val stub = (stub as? RsLitExprStub)
-    if (stub != null) return stub.type
+    if (stub != null) return stub.kind
     val kind = kind
     return when (kind) {
-        is RsLiteralKind.Boolean ->  RsStubLiteralType.Boolean
-        is RsLiteralKind.Char -> RsStubLiteralType.Char(kind.isByte)
-        is RsLiteralKind.String -> RsStubLiteralType.String(kind.value?.length?.toLong(), kind.isByte)
-        is RsLiteralKind.Integer -> RsStubLiteralType.Integer(TyInteger.fromSuffixedLiteral(integerLiteral!!))
-        is RsLiteralKind.Float -> RsStubLiteralType.Float(TyFloat.fromSuffixedLiteral(floatLiteral!!))
+        is RsLiteralKind.Boolean ->  RsStubLiteralKind.Boolean(kind.value)
+        is RsLiteralKind.Char -> RsStubLiteralKind.Char(kind.value, kind.isByte)
+        is RsLiteralKind.String -> RsStubLiteralKind.String(kind.value, kind.isByte)
+        is RsLiteralKind.Integer -> RsStubLiteralKind.Integer(kind.value, TyInteger.fromSuffixedLiteral(integerLiteral!!))
+        is RsLiteralKind.Float -> RsStubLiteralKind.Float(kind.value, TyFloat.fromSuffixedLiteral(floatLiteral!!))
         else -> null
     }
 }
 
-val RsLitExpr.integerLiteralValue: String? get() =
-    (stub as? RsLitExprStub)?.integerLiteralValue ?: integerLiteral?.text
+val RsLitExpr.booleanValue: Boolean?
+    get() {
+        val stubKind = stubKind ?: return (kind as? RsLiteralKind.Boolean)?.value
+        return (stubKind as? RsStubLiteralKind.Boolean)?.value
+    }
+
+val RsLitExpr.integerValue: Long?
+    get() {
+        val stubKind = stubKind ?: return (kind as? RsLiteralKind.Integer)?.value
+        return (stubKind as? RsStubLiteralKind.Integer)?.value
+    }
+
+val RsLitExpr.floatValue: Double?
+    get() {
+        val stubKind = stubKind ?: return (kind as? RsLiteralKind.Float)?.value
+        return (stubKind as? RsStubLiteralKind.Float)?.value
+    }
+
+val RsLitExpr.charValue: String?
+    get() {
+        val stubKind = stubKind ?: return (kind as? RsLiteralKind.Char)?.value
+        return (stubKind as? RsStubLiteralKind.Char)?.value
+    }
+
+val RsLitExpr.stringValue: String?
+    get() {
+        val stubKind = stubKind ?: return (kind as? RsLiteralKind.String)?.value
+        return (stubKind as? RsStubLiteralKind.String)?.value
+    }
 
 abstract class RsLitExprMixin : RsExprImpl, RsLitExpr, RegExpLanguageHost {
 
